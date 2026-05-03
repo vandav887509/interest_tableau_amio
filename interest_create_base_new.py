@@ -139,7 +139,7 @@ LIVE_STEPS = [
                 interest_rev_ifrs = CASE
                     WHEN int_stage = 3 AND (int_amount_balance - int_ecl_prev) > 0
                     THEN (POWER(1 + int_rate_effect/100, 1.0/12) - 1) * (int_amount_balance - int_ecl_prev)
-                    ELSE (1)
+                    ELSE 0
                 END,
                 int_impair = int_ecl - int_ecl_prev,
                 revers_impair = CASE
@@ -210,6 +210,15 @@ SET stage3_interest_gap_bas = 0 where stage3_interest_gap_bas < 0;
         "sql": """
                 UPDATE public.interest_base
 SET stage3_interest_gap_bas_calc = monthly_interest_gt - ifrs_interest;
+        """
+    },
+    {
+        # FIX: Delete existing rows for this report month before inserting
+        # to prevent duplicate records on pipeline re-runs
+        "name": "Step 8-3: Delete existing interest_rate rows for current report month",
+        "sql": """
+            DELETE FROM public.interest_rate
+            WHERE report_month = (SELECT MAX(int_report_date) FROM public.interest_base);
         """
     },
     {
