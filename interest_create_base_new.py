@@ -139,7 +139,7 @@ LIVE_STEPS = [
                 interest_rev_ifrs = CASE
                     WHEN int_stage = 3 AND (int_amount_balance - int_ecl_prev) > 0
                     THEN (POWER(1 + int_rate_effect/100, 1.0/12) - 1) * (int_amount_balance - int_ecl_prev)
-                    ELSE 0
+                    ELSE 1
                 END,
                 int_impair = int_ecl - int_ecl_prev,
                 revers_impair = CASE
